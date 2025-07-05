@@ -6,6 +6,8 @@ volumes:
 
 networks:
   demo:
+  sillasol-net:
+    external: true
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
@@ -90,6 +92,9 @@ services:
       - n8n_storage:/home/node/.n8n
       - ./n8n/demo-data:/demo-data
       - ./shared:/data/shared
+    networks:
+      - demo
+      - sillasol-net
     depends_on:
       postgres:
         condition: service_healthy
