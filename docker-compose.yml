@@ -6,6 +6,8 @@ volumes:
 
 networks:
   demo:
+  sillasol-net:
+    external: true
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
@@ -149,7 +151,3 @@ services:
     image: ollama/ollama:rocm
     depends_on:
      - ollama-gpu-amd
-
-networks:
-  sillasol-net:
-    external: true
