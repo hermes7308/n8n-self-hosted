@@ -9,7 +9,7 @@ networks:
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
-  networks: ["demo"]
+  networks: ['demo']
   environment:
     - DB_TYPE=postgresdb
     - DB_POSTGRESDB_HOST=postgres
@@ -19,14 +19,15 @@ x-n8n: &service-n8n
     - N8N_PERSONALIZATION_ENABLED=false
     - N8N_ENCRYPTION_KEY
     - N8N_USER_MANAGEMENT_JWT_SECRET
-    - OLLAMA_HOST=ollama:11434
+    - OLLAMA_HOST=${OLLAMA_HOST:-ollama:11434}
   env_file:
-    - .env
+    - path: .env
+      required: true
 
 x-ollama: &service-ollama
   image: ollama/ollama:latest
   container_name: ollama
-  networks: ["demo"]
+  networks: ['demo']
   restart: unless-stopped
   ports:
     - 11434:11434
@@ -35,7 +36,7 @@ x-ollama: &service-ollama
 
 x-init-ollama: &init-ollama
   image: ollama/ollama:latest
-  networks: ["demo"]
+  networks: ['demo']
   container_name: ollama-pull-llama
   volumes:
     - ollama_storage:/root/.ollama
@@ -50,7 +51,7 @@ services:
   postgres:
     image: postgres:16-alpine
     hostname: postgres
-    networks: ["demo"]
+    networks: ['demo']
     restart: unless-stopped
     environment:
       - POSTGRES_USER
@@ -59,11 +60,7 @@ services:
     volumes:
       - postgres_storage:/var/lib/postgresql/data
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
-        ]
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -75,9 +72,9 @@ services:
     entrypoint: /bin/sh
     command:
       - "-c"
-      - "n8n import:credentials --separate --input=/backup/credentials && n8n import:workflow --separate --input=/backup/workflows"
+      - "n8n import:credentials --separate --input=/demo-data/credentials && n8n import:workflow --separate --input=/demo-data/workflows"
     volumes:
-      - ./n8n/backup:/backup
+      - ./n8n/demo-data:/demo-data
     depends_on:
       postgres:
         condition: service_healthy
@@ -91,7 +88,7 @@ services:
       - 5678:5678
     volumes:
       - n8n_storage:/home/node/.n8n
-      - ./n8n/backup:/backup
+      - ./n8n/demo-data:/demo-data
       - ./shared:/data/shared
     depends_on:
       postgres:
@@ -103,7 +100,7 @@ services:
     image: qdrant/qdrant
     hostname: qdrant
     container_name: qdrant
-    networks: ["demo"]
+    networks: ['demo']
     restart: unless-stopped
     ports:
       - 6333:6333
@@ -150,4 +147,4 @@ services:
     <<: *init-ollama
     image: ollama/ollama:rocm
     depends_on:
-      - ollama-gpu-amd
+     - ollama-gpu-amd
