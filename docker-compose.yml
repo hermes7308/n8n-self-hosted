@@ -6,8 +6,6 @@ volumes:
 
 networks:
   demo:
-  sillasol-net:
-    external: true
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
@@ -100,9 +98,6 @@ services:
         condition: service_healthy
       n8n-import:
         condition: service_completed_successfully
-    networks:
-      - sillasol-net
-      - demo
 
   qdrant:
     image: qdrant/qdrant
