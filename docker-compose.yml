@@ -94,6 +94,8 @@ services:
         condition: service_healthy
       n8n-import:
         condition: service_completed_successfully
+    networks:
+      - sillasol-net
 
   qdrant:
     image: qdrant/qdrant
@@ -147,3 +149,7 @@ services:
     image: ollama/ollama:rocm
     depends_on:
      - ollama-gpu-amd
+
+networks:
+  sillasol-net:
+    external: true
